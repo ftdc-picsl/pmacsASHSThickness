@@ -163,40 +163,6 @@ if [[ ! -d $templateDir ]]; then
   exit 1
 fi
 
-inputType="none"
-inputFilePrefix=""
-
-fastASHS=`ls ${inputDir}/*_MTLSeg_left.nii.gz 2> /dev/null || echo`
-ashsMain=`ls ${inputDir}/*_left_lfseg_heur.nii.gz 2> /dev/null || echo`
-
-if [[ -f "${fastASHS}" ]]; then
-  echo "Found fastashs input $fastASHS"
-  inputType="fastashs"
-  fileBN=`basename $fastASHS`
-  inputFilePrefix=${fileBN%_MTLSeg_left.nii.gz}
-elif [[ -f "$ashsMain" ]]; then
-  echo "Found ashs input $ashsMain"
-  inputType="ashs"
-  fileBN=`basename $ashsMain`
-  inputFilePrefix=${fileBN%_left_lfseg_heur.nii.gz}
-else
-  echo "Cannot find ASHS segmentations in input directory ${inputDir}"
-  exit 1
-fi
-
-if [[ ! -d "${templateDir}" ]]; then
-  echo "Cannot find template directory $templateDir"
-  exit 1
-fi
-
-mkdir -p ${outputDir}
-
-if [[ ! -d ${outputDir} ]]; then
-  echo "Output directory $outputDir cannot be created"
-  exit 1
-fi
-
-
 # Set the start and end stages
 if [[ $STAGE_SPEC ]]; then
   STAGE_START=$(echo $STAGE_SPEC | awk -F '-' '$0 ~ /^[0-9]+-*[0-9]*$/ {print $1}')
@@ -215,19 +181,10 @@ else
   STAGE_END=5
 fi
 
-jobTmpDir=$( mktemp -d -p /scratch ashsthk.${LSB_JOBID}.XXXXXXX.tmpdir )
-
-if [[ ! -d "$jobTmpDir" ]]; then
-  echo "Could not create job temp dir ${jobTmpDir}"
-  exit 1
-fi
-
-trap cleanup EXIT
-
-trap sigintCleanup SIGINT
-
+# Check that input exists, and detect input format
+#
 # This script accepts "both" for the hemisphere but the container does not,
-# default to process both in series
+# so default to process both in series
 whichSide="left right"
 
 if [[ $hemi != "both" ]]; then
@@ -236,13 +193,56 @@ if [[ $hemi != "both" ]]; then
   whichSide=$hemi
 fi
 
+# Detect fastashs (pmacsASHS) or ashs input types
+inputType="none"
+# input file prefix used to pass segmentations to container, also sets output file prefix
+inputFilePrefix=""
+
+for side in $whichSide; do
+  fastASHS=`ls ${inputDir}/*_MTLSeg_${side}.nii.gz 2> /dev/null || echo`
+  ashsMain=`ls ${inputDir}/*_${side}_lfseg_heur.nii.gz 2> /dev/null || echo`
+
+  if [[ -f "${fastASHS}" ]]; then
+    echo "Found fastashs input $fastASHS"
+    inputType="fastashs"
+    fileBN=`basename $fastASHS`
+    inputFilePrefix=${fileBN%_MTLSeg_${side}.nii.gz}
+  elif [[ -f "$ashsMain" ]]; then
+    echo "Found ashs input $ashsMain"
+    inputType="ashs"
+    fileBN=`basename $ashsMain`
+    inputFilePrefix=${fileBN%_${side}_lfseg_heur.nii.gz}
+  else
+    echo "Cannot find ASHS segmentations in input directory ${inputDir}"
+    exit 1
+  fi
+done
+
+trap cleanup EXIT
+
+trap sigintCleanup SIGINT
+
+mkdir -p ${outputDir}
+
+if [[ ! -d ${outputDir} ]]; then
+  echo "Output directory $outputDir cannot be created"
+  exit 1
+fi
+
+jobTmpDir=$( mktemp -d -p /scratch ashsthk.${LSB_JOBID}.XXXXXXX.tmpdir )
+
+if [[ ! -d "$jobTmpDir" ]]; then
+  echo "Could not create job temp dir ${jobTmpDir}"
+  exit 1
+fi
+
 for side in $whichSide; do
 
   segOrig=""
 
   if [[ $inputType == "fastashs" ]]; then
     segOrig="${inputDir}/${inputFilePrefix}_MTLSeg_${side}.nii.gz"
-  elif [[ -f "$ashsMain" ]]; then
+  elif [[ $inputType == "ashs" ]]; then
     segOrig="${inputDir}/${inputFilePrefix}_${side}_lfseg_heur.nii.gz"
   else
     echo "Unrecognized ashs segmentation input: $inputType"

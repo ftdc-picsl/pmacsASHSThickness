@@ -11,10 +11,15 @@ lot more detail on the process and the outputs.
 # Input
 
 The input to the wrapper is a directory containing MTL segmentations from ASHS. The script
-will search the input directory for output files produced from either the
-[pmacsASHS](https://github.com/ftdc-picsl/pmacsASHS) script, or from calling ASHS
-`ashs_main.sh` directly. Because it searches the input directory for matching files, the
-input directory must only contain files from one session.
+will search the input directory for output files in the `fastashs` format, as implemented
+in [pmacsASHS](https://github.com/ftdc-picsl/pmacsASHS), or in the original format from
+calling ASHS `ashs_main.sh` directly. Because the script searches the input directory for
+matching files, the input directory must only contain files from one session.
+
+The `pmacsASHS` format is the same as the ASHS `fastashs` wrapper, where segmentations
+have the suffix `_MTLSeg_[left|right].nii.gz`. Standard ASHS segmentations have the
+suffix `_[left|right]}_lfseg_heur.nii.gz`.
+
 
 ## Dependencies
 
@@ -48,8 +53,7 @@ produces thickness using a "variant template", selected to best fit the individu
 anatomy. Stages 6-8 use a "unified template", which fits a common coordinate coordinate
 system to the segmentation mesh, enabling pointwise thickness comparisons.
 
-
-## Computational requirements
+### Computational requirements
 
 Using the default stages, run time is approximately 7 hours per hemisphere on the FTDC
 compute nodes. Long Xie recommends 8Gb of RAM.
@@ -58,6 +62,7 @@ Multi-threading is handled automatically based on the number of processors reser
 the LSB job. Greedy will use multiple threads but the geodesic shooting runs single
 threaded - this may be changed in later versions. Therefore, it may be most efficient to
 run with a single core.
+
 
 ## Output
 
