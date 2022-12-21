@@ -144,7 +144,7 @@ fi
 while getopts "a:e:i:k:o:s:h" opt; do
   case $opt in
     a) templateDir=$(readlink -m "$OPTARG");;
-    e) hemi=$OPTARG;;
+    e) hemi=$(echo $OPTARG | tr '[:upper:]' '[:lower:]');;
     i) inputDir=$(readlink -m "$OPTARG");;
     k) keepAllFiles=$OPTARG;;
     o) outputDir=$(readlink -m "$OPTARG");;
@@ -241,9 +241,9 @@ for side in $whichSide; do
   segOrig=""
 
   if [[ $inputType == "fastashs" ]]; then
-    segOrig="${inputDir}/${inputFilePrefix}_MTLSeg_${hemi}.nii.gz"
+    segOrig="${inputDir}/${inputFilePrefix}_MTLSeg_${side}.nii.gz"
   elif [[ -f "$ashsMain" ]]; then
-    segOrig="${inputDir}/${inputFilePrefix}_${hemi}_lfseg_heur.nii.gz"
+    segOrig="${inputDir}/${inputFilePrefix}_${side}_lfseg_heur.nii.gz"
   else
     echo "Unrecognized ashs segmentation input: $inputType"
     exit 1
