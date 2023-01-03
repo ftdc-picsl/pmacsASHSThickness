@@ -10,15 +10,19 @@ lot more detail on the process and the outputs.
 
 # Input
 
-The input to the wrapper is a directory containing MTL segmentations from ASHS. The script
-will search the input directory for output files in the `fastashs` format, as implemented
-in [pmacsASHS](https://github.com/ftdc-picsl/pmacsASHS), or in the original format from
+The input to the wrapper is a directory containing MTL segmentations from ASHS. Currently,
+only ASHS T1w output is supported. The script will search the input directory for output
+files in the `fastashs` format, as implemented in
+[pmacsASHS](https://github.com/ftdc-picsl/pmacsASHS), or in the original format from
 calling ASHS `ashs_main.sh` directly. Because the script searches the input directory for
 matching files, the input directory must only contain files from one session.
 
 The `pmacsASHS` format is the same as the ASHS `fastashs` wrapper, where segmentations
 have the suffix `_MTLSeg_[left|right].nii.gz`. Standard ASHS segmentations have the
 suffix `_[left|right]}_lfseg_heur.nii.gz`.
+
+The script does not detect what atlas was used in the ASHS segmentation - users must
+ensure that input was segmented with the ASHS-T1 pipeline.
 
 
 ## Dependencies
@@ -38,7 +42,8 @@ singularity build ashsthk-4.0.sif docker://longxie/ashsthk:v4
 
 ### ASHS thickness multi-atlas template
 
-The template path can be set at run time with `-a`.
+The template path can be set at run time with `-a`. The default template is for ASHS-T1
+segmentations only. A template for ASHS-T2 segmentations is under development.
 
 
 ## Running the script
