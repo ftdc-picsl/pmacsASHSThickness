@@ -82,6 +82,14 @@ For each hemisphere, there are three outputs when running the default stages:
 
 The group is an integer group identifier, which identifies the selected variant template.
 
+When running the unified template steps, there are additional output files
+
+* `[hemisphere]_UT_template_fitted_mesh.vtk`
+* `[hemisphere]_UT_template_momenta.vtk`
+
+and statistics for thickness and fit quality in the unified template space are appended to
+the `[hemisphere]_thickness.csv` files.
+
 
 ## Citation
 
