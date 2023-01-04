@@ -135,12 +135,6 @@ if [[ $# -lt 1 ]]; then
   exit 2
 fi
 
-# Check we're in a bsub job
-if [[ -z "${LSB_DJOB_NUMPROC}" ]]; then
-  echo "Script must be run from within an LSB job"
-  exit 1
-fi
-
 while getopts "a:e:i:k:o:s:h" opt; do
   case $opt in
     a) templateDir=$(readlink -m "$OPTARG");;
@@ -157,6 +151,12 @@ while getopts "a:e:i:k:o:s:h" opt; do
 done
 
 ##############################################
+
+# Check we're in a bsub job
+if [[ -z "${LSB_DJOB_NUMPROC}" ]]; then
+  echo "Script must be run from within an LSB job"
+  exit 1
+fi
 
 if [[ ! -d $templateDir ]]; then
   echo "Template directory $templateDir does not exist"
