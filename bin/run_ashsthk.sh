@@ -106,7 +106,7 @@ function cleanup {
   set +e # disable termination on error
 
   if [[ $cleanupTmp -gt 0 ]]; then
-    rm -rf ${jobTmpDir}/work_right ${jobTmpDir}/work_left
+    rm -rf ${jobTmpDir}/work_right ${jobTmpDir}/work_left ${jobTmpDir}/.*
     rm -f ${jobTmpDir}/*
     rmdir ${jobTmpDir}
   else
