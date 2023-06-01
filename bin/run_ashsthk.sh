@@ -262,8 +262,9 @@ singularity inspect $image
     -B ${templateDir}:/app/template:ro \
     -B ${jobTmpDir}:/tmp \
     -B ${segOrig}:/app/input/${inputFilePrefix}_${side}_ASHSSeg.nii.gz \
+    -B ${scriptDir}/ashsthk_main.sh:/opt/ashsthk_main.sh:ro \
     $image \
-    /bin/bash /home/ashsthk/ashsthk_main.sh \
+    /bin/bash /opt/ashsthk_main.sh \
       -n $inputFilePrefix \
       -i /app/input/${inputFilePrefix}_${side}_ASHSSeg.nii.gz \
       -l $side \
